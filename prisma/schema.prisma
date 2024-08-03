@@ -13,10 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model UserData{
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
   password  String
+  dbs       UserDbs[]
   createdAt DateTime @default(now())
+}
+
+model UserDbs {
+  id       Int   @id @default(autoincrement())
+  database String
+  dbname   String
+  dburl    String
+  user     UserData  @relation(fields: [userId], references: [id])
+  userId   String
 }

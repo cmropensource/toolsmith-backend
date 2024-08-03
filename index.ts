@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 const cors = require("cors");
 const userRouter = require("./routes/UserRouter");
 const queryRouter = require("./routes/queryRouter");
+const dataBaseRouter = require("./routes/dataBaseRouter");
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ app.use(express.json());
 app.use(cors());
 app.use("/api/user" , userRouter)
 app.use("/api/query" , queryRouter)
+app.use("/api/database" , dataBaseRouter)
+
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Database Visualization");

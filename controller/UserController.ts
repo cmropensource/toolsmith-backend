@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const CreateUser = async (req: any, res: any) => {
     try {
         const {name , email , password} = req.body;
-        const isFound = await prisma.user.findUnique({
+        const isFound = await prisma.userData.findUnique({
             where : {
                 email : email
             }
@@ -30,14 +30,19 @@ export const CreateUser = async (req: any, res: any) => {
         const secret : string = process.env.JWT_SECRET || "";
         const token = jwt.sign({email : email} , secret , {expiresIn: "1d"});
 
-        const newUser = await prisma.user.create({
+        const newUser = await prisma.userData.create({
             data : {
                 name : name,
                 email : email,
                 password : hashedPassword
             }
         })
-        return res.status(200).json({message : "User Created" , token : token})
+        const data = {
+            id : newUser.id,
+            name : newUser.name,
+            email : newUser.email
+        }
+        return res.status(200).json({message : "User Created" , data, token : token})
     } catch (error) {
         console.log(error);
         return res.status(500).json({message : "Internal Server Error"})
@@ -47,7 +52,7 @@ export const CreateUser = async (req: any, res: any) => {
 const LoginUser = async (req: any, res: any) => {
     try {
         const {email , password} = req.body;
-        const user = await prisma.user.findUnique({
+        const user = await prisma.userData.findUnique({
             where : {
                 email : email
             }
@@ -64,8 +69,12 @@ const LoginUser = async (req: any, res: any) => {
 
         const secret : string = process.env.JWT_SECRET || "";
         const token = jwt.sign({email : email} , secret , {expiresIn: "1d"});
-
-        return res.status(200).json({message : "User Logged In" , token : token})
+        const data = {
+            id : user.id,
+            name : user.name,
+            email : user.email
+        }
+        return res.status(200).json({message : "User Logged In" , data , token : token})
     } catch (error) {
         console.log(error);
         return res.status(500).json({message : "Internal Server Error"})
