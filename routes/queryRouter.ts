@@ -1,9 +1,10 @@
 const express = require('express');
-const  { QueryData }  = require("../controller/getQueryData");
+const  { QueryData , QueryMongo }  = require("../controller/getQueryData");
 const router = express.Router();
 const { AuthWare } = require("../middleware/AuthMiddleWare");
 
 router
-    .post("/queryData" , AuthWare , QueryData)
+    .post("/queryDataPost" , AuthWare , QueryData)
+    .post("/queryDataMongo" , AuthWare , QueryMongo)
 
 module.exports = router

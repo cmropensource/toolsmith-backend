@@ -1,8 +1,20 @@
 const pg = require('pg');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+const {mongoose} = require('mongoose');
 
-//postgres data querying
+
+//function to convert string to object => string => {"key" : value}
+function findObject(str: string): { [key: string]: any } {
+    const trimmedStr = str.trim();
+    const [key, value] = trimmedStr.split(':').map(part => part.trim());
+    if(!value) return {};
+    const cleanedValue = value.replace(/^['"]|['"]$/g, '');
+    const result: { [key: string]: any } = {};
+    result[key] = cleanedValue;
+    return result;
+}
+
+//postgres data query
 export const QueryData = async (req : any, res : any) => {
     try {
         const {url , query} = req.body;
@@ -27,16 +39,30 @@ export const QueryData = async (req : any, res : any) => {
     }
 }
 
-//mongoDb data querying
+//mongoDb data query
 export const QueryMongo = async (req : any, res : any) => {
     try {
         const {url , query} = req.body;
+        console.log(url)
         mongoose.connect(url)
         .then(async() => {
             console.log("Connected to users MongoDb");
-            //querying
-            //pending task
-            //Try to find a way to execute query
+            const {query : string} = req.body;
+            //query = db.collection('inventory').find({});
+            const collectionMatch = query.match(/\(([^)]+)\)/);
+            const collectionName = collectionMatch ? collectionMatch[1].replace(/['"]/g, '').trim() : '';
+
+            // Extract findName using regular expressions
+            const findNameMatch = query.match(/\{([^}]+)\}/);
+            const findName = findNameMatch ? findNameMatch[1].replace(/['"]/g, '').trim() : '';
+            const keyValuePair = findObject(findName);
+            console.log(keyValuePair);
+
+            //querying to get data from the MongoDb
+            const result = await mongoose.connection.db.collection(collectionName).find(keyValuePair);
+            const data = await result.toArray();
+            console.log(data);
+            return res.status(200).json({message : "Connected ans executed query" })
         })
         .catch((err : any) => {
             console.log(err)
