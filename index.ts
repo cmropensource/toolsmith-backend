@@ -4,6 +4,7 @@ const cors = require("cors");
 const userRouter = require("./routes/UserRouter");
 const queryRouter = require("./routes/queryRouter");
 const dataBaseRouter = require("./routes/dataBaseRouter");
+const bulkInsertRouter = require("./routes/bulkInsertRouter");
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use("/api/user" , userRouter)
 app.use("/api/query" , queryRouter)
 app.use("/api/database" , dataBaseRouter)
+app.use("/api/bulkInsert" , bulkInsertRouter)
 
 
 app.get("/", (req: Request, res: Response) => {

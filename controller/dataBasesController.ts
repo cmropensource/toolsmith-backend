@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+const {MongoTable , PostgreTable} = require("../middleware/tablesMiddleware") 
+
 
 export const AddDataBase = async ( req : any , res : any) => {
     try{
@@ -24,7 +26,7 @@ export const AddDataBase = async ( req : any , res : any) => {
 
         const newEntry = await prisma.userDbs.create({
             data : {
-                userId : id , 
+                userId : id, 
                 database : database,
                 dbname : dbname,
                 dburl : dburl
@@ -62,4 +64,34 @@ export const getDatabases = async (req : any , res : any) => {
     }
 }
 
-module.exports = { AddDataBase , getDatabases };
+export const getTableNames = async(req : any , res : any) => {
+    try {
+        const {database , url} = req.body;
+        console.log(database , url);
+        var result;
+        switch(database){
+            case 'MongoDB':
+                var table : any = await MongoTable(url);
+                console.log(table);
+                return res.status(200).json(table)
+            case 'PostgreSQL':
+                var result = await PostgreTable(url);
+                console.log("From the main function \n" , result.table);
+                return res.status(200).json(result)
+            case 'MySQL':
+                // get Table Names from the function
+                break;
+        }
+
+        return res.status(200).json({
+            message : "Table Names Fetched",
+            data : result
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message : "Internal Server Error"})
+    }
+}
+
+module.exports = { AddDataBase , getDatabases , getTableNames};
