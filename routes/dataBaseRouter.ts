@@ -6,8 +6,8 @@ const router = express.Router();
 
 router
     .post("/addDatabase" , AuthWare , AddDataBase)
-    .get("/getDatabases" , AuthWare ,getDatabases)
-    .get("/getTableNames"  ,getTableNames)
+    .get("/getDatabases" , AuthWare , getDatabases)
+    .get("/getTableNames"  , getTableNames)
 
 
 module.exports = router

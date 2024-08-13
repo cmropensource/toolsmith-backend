@@ -9,12 +9,38 @@ export const MongoTable = async (dburl  : string) => {
         await mongoose.connect(dburl)
         .then(async() => {
             console.log("Connected to users MongoDb");
-            const response = await mongoose.connection.db.listCollections().toArray();
-            console.log("this is it \n" , response);
-            // tables = response.toArray().map((table : any) => {
-            //     return table.name
-            // })
-            
+            const collections = await mongoose.connection.db.listCollections().toArray();
+            tables = collections.map((table : any) => table.name)
+            const schemaData = [];
+            for (const collection of collections) {
+                const collectionName = collection.name;
+                //get the schema of respective collection
+                const Model = mongoose.model(collectionName, new mongoose.Schema({}, { strict: false }), collectionName);
+                //finds one document in the respective collection
+                const sampleDoc = await Model.findOne();
+                if (sampleDoc) {
+                    //returns the keys of the document i.e the fields of the collection
+                   const fields = Object.keys(sampleDoc.toObject());
+                   const fieldTypes = fields.map(field => ({
+                        field,
+                        type: typeof sampleDoc[field]
+                    }));
+                    schemaData.push({
+                        collection: collectionName,
+                        fields: fieldTypes
+                    });
+                } else {
+                    schemaData.push({
+                    collection: collectionName,
+                    fields: [] 
+                    });
+                }
+            }
+            schemaData.forEach((element : any) => {
+                console.log(element.collection);
+                console.log(element.fields);
+            });
+            tables = schemaData;
         })
         .catch((error : any) => {
             console.log("Unable to connect/fetch to/from MongoServer " , error);
